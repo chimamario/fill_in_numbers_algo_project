@@ -17,6 +17,6 @@ import numpy as np
 
 #create 13 x 13 matrix
 
-matrix = np.zeros(13,13)
+matrix = np.zeros((13,13))
 
 print(matrix)

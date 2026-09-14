@@ -1,4 +1,7 @@
+import numpy as np
+
 from MatrixIterator import MatrixIterator
+from MatrixIterator import obtain_all_sets_v2
 import copy
 
 #If you want previous git history of this Class look m_n_a_v4.ipynb
@@ -43,6 +46,7 @@ class MatrixCoordinator:
         self.current_set_num = 0 
         self.node_storage = {}
         self.max_score = np.sum(proper_matrix)
+        self.proper_matrix = proper_matrix
         
 
     
@@ -95,7 +99,7 @@ class MatrixCoordinator:
             
                 
             
-            number_list, current_set, common_sets, main_number_dict, current_matrix, all_coords = obtain_all_sets_v2(proper_matrix, self.current_set_num, main_number_dict, current_matrix, all_coords, first_guess = False) 
+            number_list, current_set, common_sets, main_number_dict, current_matrix, all_coords = obtain_all_sets_v2(self.proper_matrix, self.current_set_num, main_number_dict, current_matrix, all_coords, first_guess = False) 
             tracker_dict = create_object_copy(number_list, current_set, common_sets, main_number_dict, current_matrix, all_coords, main_object = main_object)
 
             for name, item_and_ranking in tracker_dict.items(): 

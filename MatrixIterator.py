@@ -1,7 +1,9 @@
+import numpy as np
+import copy
 
 #If you want previous git history of this Class look m_n_a_v4.ipynb
 
-#Extremely important cell
+#Extremely important functions
 def sort_coord_list(x_list, order):
         if order == 'row':
             return sorted(x_list, key=lambda item:item[1])
@@ -19,6 +21,83 @@ def get_common_set_quickly(c_set, all_coords): #if works, you can add this funct
             quick_common_sets.append(check_set)
     
     return quick_common_sets
+
+def obtain_coordinates(matrix):
+    coordinates =  []
+    for i, array in enumerate(matrix):
+        current_set = [] #obtain connected cells, add to dictionary and then reset for other set
+        trigger=False
+        for x, a in enumerate(array):
+            
+            #starts with false
+            if a == False and trigger == False:
+                continue
+            elif a==True and trigger == False:
+                # curent_set = []
+                trigger = True
+                current_set.append((i,x))
+            elif a == True and trigger == True:
+                current_set.append((i,x))
+            elif a == False and trigger == True: #assume num section has ended and set needs to be reset
+                trigger = False
+                coordinates.append(current_set)
+                current_set = []
+            if x == (len(array) - 1): #check when loop is at the end of array
+                if len(current_set) == 0:
+                    continue
+                coordinates.append(current_set)
+    return coordinates
+
+def obtain_all_sets_v2(matrix, current_set_num, main_number_dict,  current_matrix = None, all_coords = None, first_guess = True):
+
+    #get all the coordinates
+    if first_guess: #creation of all_coords
+        hori_coords = obtain_coordinates(matrix)
+        vertical_matrix = matrix.T
+        vert_coords = obtain_coordinates(vertical_matrix)
+
+        new_vert_coords = []
+        for array in vert_coords:
+            new_array = []
+            for coord in array:
+                x,y = coord
+                new_array.append((y,x))
+            new_vert_coords.append(new_array)
+        
+        all_coords = new_vert_coords + hori_coords
+
+    # print(f"all_coords:{all_coords}") #NOTE debug line
+    coords_ranked = sorted(all_coords, key=len, reverse=True)
+    
+
+    #select the current_set you want to test (adjust later)
+    # print(f"coords_ranked: {coords_ranked}") #NOTE debug line
+    current_set = coords_ranked[current_set_num] #might use pop method later
+    current_set = set(current_set)
+
+    common_sets = []
+    for check_set in coords_ranked: #2 for 1 with the coords ranked later
+        check_set = set(check_set)
+        common_coords = current_set.intersection(check_set)
+        if check_set != current_set and len(common_coords) > 0:
+            common_sets.append(check_set)
+    #obtain number list to select from.
+    length = len(current_set)
+    number_list = main_number_dict[length] 
+
+    #obtain guess based off selection
+    # guess = number_list[number_list_num]
+
+    #initial matrixt should be created. And within the Class script the main guess should be added
+    if first_guess:
+        current_matrix = [[None for i in range(13)] for i in range(13)]
+    if '6103' in number_list:
+        print(f"guesses: {number_list}") #numbers of 1st guess
+        print(f"current_set: {current_set}")#coordinates of main guess
+        print(f"main_number_dict: {main_number_dict}") #list of all numbers (organized)
+        print(f"common_sets: {common_sets}") #list of coordinates that include the same coordinates as current_set
+
+    return number_list, current_set, common_sets, main_number_dict, current_matrix, all_coords
 
 class MatrixIterator:
     def __init__(self, first_guess, current_set, common_sets, main_number_dict, current_matrix, all_coords, father = None):
