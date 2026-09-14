@@ -92,9 +92,6 @@ class MatrixCoordinator:
                 
             main_number_dict, current_matrix, all_coords= main_object.return_matrix_variables()
             if len(all_coords) == 0: #matrix is completely filled, end function
-                print('last iteation is complete, end loop')
-                print(f"current_score: {prev_score}")
-                print(f"current_score: {main_object.ranking}")
                 return True
             
                 
@@ -105,8 +102,7 @@ class MatrixCoordinator:
             for name, item_and_ranking in tracker_dict.items(): 
                 class_object = item_and_ranking[1]
                 
-                print(f"main guess for iteation: {class_object.first_guess}")
-                print(f"the current set for main guess: {class_object.current_set}")
+                print(f"main guess and set:  {class_object.first_guess} and {class_object.current_set}")
                 class_object.main_function()
                 
                 if class_object.remove_node is False:
@@ -151,11 +147,7 @@ class MatrixCoordinator:
             found_solution = self.iterate_and_create_nodes(main_object, current_score)
 
             if found_solution:
-                print("\n")
-                print("\n")
                 print(f'SOLUTION FOUND for {king}')
-                print("\n")
-                print("\n")
                 break
             else:
                 print(f"no solution in {king} iterate to next king")

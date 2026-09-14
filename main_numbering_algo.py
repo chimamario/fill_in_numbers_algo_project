@@ -57,9 +57,5 @@ proper_matrix = ~matrix
 
 
 
-
-
-
-
 attempt1 = MatrixCoordinator(None,proper_matrix, main_number_dict)
 attempt1.main_coordinator()

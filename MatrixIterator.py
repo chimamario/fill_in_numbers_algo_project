@@ -66,12 +66,12 @@ def obtain_all_sets_v2(matrix, current_set_num, main_number_dict,  current_matri
         
         all_coords = new_vert_coords + hori_coords
 
-    # print(f"all_coords:{all_coords}") #NOTE debug line
+    
     coords_ranked = sorted(all_coords, key=len, reverse=True)
     
 
     #select the current_set you want to test (adjust later)
-    # print(f"coords_ranked: {coords_ranked}") #NOTE debug line
+    
     current_set = coords_ranked[current_set_num] #might use pop method later
     current_set = set(current_set)
 
@@ -91,11 +91,11 @@ def obtain_all_sets_v2(matrix, current_set_num, main_number_dict,  current_matri
     #initial matrixt should be created. And within the Class script the main guess should be added
     if first_guess:
         current_matrix = [[None for i in range(13)] for i in range(13)]
-    if '6103' in number_list:
-        print(f"guesses: {number_list}") #numbers of 1st guess
-        print(f"current_set: {current_set}")#coordinates of main guess
-        print(f"main_number_dict: {main_number_dict}") #list of all numbers (organized)
-        print(f"common_sets: {common_sets}") #list of coordinates that include the same coordinates as current_set
+    # if '6103' in number_list:
+    #     print(f"guesses: {number_list}") #numbers of 1st guess
+    #     print(f"current_set: {current_set}")#coordinates of main guess
+    #     print(f"main_number_dict: {main_number_dict}") #list of all numbers (organized)
+    #     print(f"common_sets: {common_sets}") #list of coordinates that include the same coordinates as current_set
 
     return number_list, current_set, common_sets, main_number_dict, current_matrix, all_coords
 
@@ -181,11 +181,7 @@ class MatrixIterator:
             if None not in potential_number:
                 result  = "".join(num for num in potential_number)
                 if result in n_list:
-                    print("\n")
-                    print("\n")
-                    print(f'{result} was not removed from main_number_dict')
-                    print("\n")
-                    print("\n")
+                    # print(f'{result} was not removed from main_number_dict')
                     self.all_coords.remove(coord_list)
                     n_list.remove(result)
                     self.main_number_dict[len(coord_list)] = n_list
@@ -194,12 +190,7 @@ class MatrixIterator:
     def check_iso_guess_cases(self, iterator_check = False):
         iso_list = [] #add all guesses that have one 1 input into list
         intermiediate_common_sets = self.common_sets.copy() #doing this because we can't adjust the list we are iterating mid way
-        if self.first_guess =='6073':
-            print("\n")
-            print("\n")
-            print(f"here are the common_sets: {intermiediate_common_sets}")
-            print("\n")
-            print("\n")
+        
         for c_set in intermiediate_common_sets: #scoop all possible numbers based on length
   
             c_length = len(c_set)
@@ -223,8 +214,7 @@ class MatrixIterator:
             else:
                 c_set = sorted(c_set)
             
-            if self.first_guess == '6073':
-                print(f"c_set: {c_set} with c_numbers: {c_numbers}")
+            
             
             
             #obtain number based on coordinate and order of c_set
@@ -235,8 +225,8 @@ class MatrixIterator:
                 if first_guess_number == nums[position]:
                     potential_numbers.append(nums)
             
-            if self.first_guess == '6073':
-                print(f"{self.first_guess} for c_set {c_set} has the following potential_numbers: {potential_numbers}")
+            # if self.first_guess == '6073':
+            #     print(f"{self.first_guess} for c_set {c_set} has the following potential_numbers: {potential_numbers}")
                 
             if len(potential_numbers) == 0:
                 
@@ -247,8 +237,6 @@ class MatrixIterator:
                     continue
             elif len(potential_numbers) == 1: #input value into matrix
 
-                if self.first_guess == '6073':
-                    print(f"{self.first_guess} has 1 number {potential_numbers[0]} for c_set: {c_set}  ")
 
                 pot_num = potential_numbers[0] #extract number
                 iso_list.append(pot_num)
@@ -266,15 +254,11 @@ class MatrixIterator:
                 
                 # print(f"set {c_set} has the following potential numbers: {pot_num} and here is quick_set_with_num: {quick_set_with_num}")
                 
-                if self.first_guess == '6073':
-                    print(f"quick_set_with_num: {quick_set_with_num}")
 
                 for i, (x,y) in enumerate(c_set): #add to matrix
                     self.current_matrix[x][y] = pot_num[i]
                 
-                
-                
-
+            
 
                 if len(quick_set_with_num) == 0:
                      # honestly I should just remove statement
@@ -283,7 +267,6 @@ class MatrixIterator:
                     for q_set in quick_set_with_num: #not sure why its called q_set but I want to be consisent
                         q_set = sort_coord_list(q_set, self.which_axis) #make sure list is in order
                         r_value = [self.current_matrix[x][y] for (x,y) in q_set] # this should provide a list of numbers and/or NONes
-                        # print(r_value)
                         r_length = len(r_value)
                         r_number_list = self.main_number_dict[r_length]
 
@@ -305,10 +288,10 @@ class MatrixIterator:
                             else:
                                 if r_num in self.removed_nums:
                                     continue
-                                    print(f"number is already in matrix") #NOTE debug line
+                                    
                                 else:
                                     continue
-                                    print(f"no number exists for r_value: {r_value} aka r_num: {r_num} here and since its only 1 option, we have to believe this combination is incorrect") #NOTE debug line
+                                    # print(f"no number exists for r_value: {r_value} aka r_num: {r_num} here and since its only 1 option, we have to believe this combination is incorrect") #NOTE debug line
                                 
                         
                         elif any(q_set): #for nums that are partially filled
@@ -322,15 +305,13 @@ class MatrixIterator:
                             
                             potential_r_nums_set = (set(sublist) for sublist in potential_r_nums.values())
                             potential_r_nums = list(set.intersection(*potential_r_nums_set))
-                            if self.first_guess == '6073':
-                                print(f"potenital_r_num: {potential_r_nums} ")
+                            # if self.first_guess == '6073':
+                            #     print(f"potenital_r_num: {potential_r_nums} ")
                             # potential_r_nums = list(set(potential_r_nums)) #remove duplicates
 
                             # print(f"for {q_set}, here are the following numbers: {potential_r_nums}") #NOTE debug line
                             if len(potential_r_nums) == 1: #we found the only solution, add to matrix
-                                # print(f"we added {potential_r_nums[0]} to matrix and remove respective value from lists ") #NOTE debug line
-                                # print(f'we will put in {p_set}')
-                                # print(f"tracking which set and number hit this condition:{potential_r_nums[0]} and {q_set}")
+                                
                                 
                                 for i, (x,y) in enumerate(q_set):
                                     self.current_matrix[x][y] = potential_r_nums[0][i]
@@ -365,8 +346,8 @@ class MatrixIterator:
                 
                 self.main_number_dict[c_length] = c_numbers #remove number from dictionary
             else:
-                if self.first_guess == '6073':
-                    print(f"just checking if {self.first_guess} hits this else condition ")
+                # if self.first_guess == '6073':
+                #     print(f"just checking if {self.first_guess} hits this else condition ")
                 # print(f"we are removing {c_set} from coords and common sets, {pot_num} from dictionary")
                 continue
                 
@@ -413,8 +394,7 @@ class MatrixIterator:
             if (c_set[0][c_set_idx] == c_set[1][c_set_idx]) and abs(int(c_set[0][c_set_idx]) - int(get_coord)) == 1: #TODO for row, it will be if (c_set[0][0] == c_set[1][0]) and abs(int(c_set[0][0]) - int(get_coord)) 
                 if any(item in vicinity_set for item in c_set):
                     potential_vicinity_sets.append(c_set)
-        if self.first_guess == '6073':
-            print(f"{self.first_guess} has potential_vic_sets: {potential_vicinity_sets}")
+        
         
         if len(potential_vicinity_sets) > 0: #note that it is impossible for this list to be empty. 
             #variable for all 
@@ -422,7 +402,7 @@ class MatrixIterator:
                 pot_vic_nums = []
                 p_length = len(p_set)
                 n_list = self.main_number_dict[p_length]
-                # print(f"n_list:{n_list}") #NOTE debug print value
+                
 
                 #can we vectorize the approach above to only consider numbers that have more than 1 common connection
                 vin_array = np.empty(len(p_set), dtype='object')
@@ -440,9 +420,7 @@ class MatrixIterator:
 
                 pot_vic_nums = set(pot_vic_nums) #remove duplicates numbers
                 pot_vic_nums = list(pot_vic_nums)
-                # print(f"p_set: {p_set} has potential num values:{pot_vic_nums} based off vin_array: {vin_array}") #NOTE debug print value
-                if self.first_guess == '6073':
-                    print(f"{self.first_guess} has potential numbers {pot_vic_nums} for p_set{p_set}")
+
                 #after all vicinity values with only 1 option is added, now we can vet out the other cases
                 if len(pot_vic_nums) >= 1:
                     
@@ -450,7 +428,6 @@ class MatrixIterator:
                         sort_coord_list(list(r_set), self.which_axis) for r_set in self.common_sets
                         if any(item in r_set for item in p_set)
                     ]
-                    # print(f"r_sets:{r_sets}") #NOTE debug print value
 
                     r_arrays = {} #store the real numbers from r_sets. if cell is empty, "None" is in its place
                     p_set_r_or_c = []
@@ -474,10 +451,7 @@ class MatrixIterator:
                         key_value = tuple(p_set_r_or_c[i])
                         r_arrays[key_value] = r_array
                         
-                    # print(f"r_arrays:{r_arrays}") #NOTE debug print value
-
-                    # print(f"first_x and y: {first_x}, {first_y}")
-                    # print(f"p_set:{p_set}") #NOTE debug print value
+                    
                     pot_vic_nums_for_iter = pot_vic_nums.copy()
                     for num in pot_vic_nums_for_iter:
                         
@@ -590,61 +564,6 @@ class MatrixIterator:
         return intermiediate_all_coords
 
     def main_function(self):
-        #NOTE noticed drop in performance adding section. just leave it for now
-        #NOTE too much to look into - revist later
-        #all quick check to see if there is a number with a unique length (last value left) so we can quickly add it
-        # for length, num_list in self.main_number_dict.items():
-        #     if len(num_list) == 1:
-        #         print('found isolated number') #theorticallly, there should be only one set of coords with the same length
-        #         list_of_coords = [coord_list for coord_list in self.all_coords if len(coord_list) == length]
-        #         if len(list_of_coords) == 1:
-        #             print(f"{num_list[0]} has coords {list_of_coords} we can fit in")
-        #             for i, (x,y) in enumerate(list_of_coords[0]):
-        #                 self.current_matrix[x][y] = num_list[0][i]
-                    
-        #             print(f"added {num_list[0]}")
-                    
-                    #NOTE adding section below prematurely removes numbers that can be used for addtional analysis
-                    #NOTE does that make the code above obsolute?
-                    # n_list = self.main_number_dict[length]
-                    # n_list.remove(num_list[0])
-                    # self.all_coords.remove(list_of_coords[0])
-
-                    # set_of_coords = set(list_of_coords[0])
-                    # if set_of_coords in self.common_sets:
-                    #     self.common_sets.remove(set_of_coords)
-        
-
-         #we need to do a quick check to remove coordinates that were added but were missed
-        # temp_coord_list = self.all_coords.copy()
-        # print(f"temp_coord_list: {temp_coord_list}")
-        # for coord_list in temp_coord_list:
-        #     check_list = [] 
-        #     for (x,y) in coord_list:
-        #         check_list.append(self.current_matrix[x][y])
-        #     if None not in check_list:
-        #         if coord_list in temp_coord_list:
-        #             print(f"coord_lsit: {coord_list}")
-        #             self.all_coords.remove(coord_list)
-            # elif check_list.count(None) == 1:
-            #     length = len(check_list)
-            #     numbers = self.main_number_dict[length]
-            #     potential_r_nums = {}
-            #     for i, digit in enumerate(check_list): 
-            #         if digit:
-            #             add_to_list = [r_num for r_num in numbers if r_num[i] == digit]
-            #             potential_r_nums[i] = add_to_list
-                
-            #     potential_r_nums_set = (set(sublist) for sublist in potential_r_nums.values())
-            #     potential_r_nums = list(set.intersection(*potential_r_nums_set))
-            #     if len(potential_r_nums) == 1:
-            #         for i, (x,y) in enumerate(coord_list):
-            #             self.current_matrix[x][y] = potential_r_nums[0][i]
-                
-                    
-        #do a quick check if current_set already has a value
-
-        # for i, (x,y) in enumerate(self.correct_order_first_guess)
 
         initial_check = self.quick_current_set_check()
 
@@ -660,8 +579,6 @@ class MatrixIterator:
 
 
             iso_check, iso_list, iterator_check = self.check_iso_guess_cases()
-            # if self.first_guess == '139011':
-            #     print(f"initial iso_list: {iso_list}")
             if (iso_check == True) or (len(iso_list) > 0):
                 # print(f"this guess ({self.first_guess}) has potential lets keep going") #NOTE debug line
 
@@ -669,12 +586,7 @@ class MatrixIterator:
                 while len(iso_list) > 0:
                 # while iterator_check == True:
                     iso_check, iso_list, iterator_check = self.check_iso_guess_cases(iterator_check) #make a while loop until iso list is empty
-                    if self.first_guess == '6103':
-                        print(f" 6183 intermediate iso_list: {iso_list}")
-                    if self.first_guess == '139011':
-                        print(f"intermediate iso_list: {iso_list}")
-                if self.first_guess == '139011':
-                    print(f"iso function for {self.first_guess} is complete. here is the iso_list: {iso_list}")
+                    
 
             
                 remaining_coords = self.check_vicinity_sets_v2()
@@ -692,10 +604,10 @@ class MatrixIterator:
                 self.ranking = sum(1 for row in self.current_matrix for val in row if val is not None)
                 
                 #just in case the iso case fails
-                if self.ranking == 123:
-                    self.remove_node = False
-                else:
-                    self.remove_node = True
+                # if self.ranking == 123:
+                #     self.remove_node = False
+                # else:
+                #     self.remove_node = True
         else:
             print(f'{self.first_guess} does not match with current matrix for cells {self.current_set}')
             self.remove_node = True
@@ -717,9 +629,6 @@ class MatrixIterator:
         temp_current_set = sorted(list(self.current_set))
         if temp_current_set in self.all_coords:
             self.all_coords.remove(temp_current_set)
-        # print(f"current_set: {temp_current_set}")
-        # temp_all_coords = sorted(self.all_coords, key = len, reverse=True)
-        # print(f"self.all_coords: {temp_all_coords}")
 
 
         return copy.deepcopy(self.main_number_dict), copy.deepcopy(self.current_matrix), copy.deepcopy(self.all_coords)
