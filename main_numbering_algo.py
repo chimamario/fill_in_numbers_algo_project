@@ -29,12 +29,15 @@ numbers = list(set(numbers))
 #remove 737, 0420, remove40060637
 #add 3273, 4737, 49447, 96283, 97114, all 9  numbers
 
-main_number_dict = {}
-for i in range(3,10):
-    nums_test = [n for n in numbers if len(n) == i]
-    if len(nums_test) > 0:
-        main_number_dict[i] = nums_test
+def create_number_dict(numbers):
+    main_number_dict = {}
+    for i in range(3,10):
+        nums_test = [n for n in numbers if len(n) == i]
+        if len(nums_test) > 0:
+            main_number_dict[i] = nums_test
+    return main_number_dict
 
+main_number_dict = create_number_dict(numbers)
 
 def preProcess(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -144,15 +147,77 @@ def create_matrix(image):
     return boolean_matrix
 
 
-image = preprocess_and_warp("test_photo_v3.jpg")
-cv2.imshow("image", image)
-cv2.waitKey(0)
-boolean_matrix = create_matrix(image)
+def extract_clean_numbers(image_path):
+    # 1. Load image in grayscale
+    img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    
+    # 2. Resize (Tesseract prefers larger, clear text; at least 30-40px high)
+    # Upscaling by 2x or 3x using cubic interpolation reduces pixelation
+    img = cv2.resize(img, None, fx=6, fy=3, interpolation=cv2.INTER_CUBIC)
+
+    # cv2.imshow("img", img)
+    # cv2.waitKey(0)
+
+    
+    # # 3. Apply Thresholding (Converts to crisp black text on pure white background)
+    # # Otsu's thresholding automatically calculates the optimal threshold value
+    # # _, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    # thresh = cv2.adaptiveThreshold(
+    #     img,
+    #     255,
+    #     cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+    #     cv2.THRESH_BINARY,
+    #     11,
+    #     2
+    # )   
+
+    # cv2.imshow("img", thresh)
+    # cv2.waitKey(0)
+    
+    # 4. Strict Tesseract Configuration
+    # --psm 11: Tells Tesseract to look for sparse, unordered text chunks
+    # tessedit_char_whitelist: Strictly forces Tesseract to only see digits
+    custom_config = r'--psm 11 --oem 3 -c tessedit_char_whitelist=0123456789'
+    
+    # 5. Extract text
+    raw_text = pytesseract.image_to_string(img, config=custom_config)
+    
+    # 6. Parse numbers into a clean Python list using regex
+    numbers_list = [num for num in re.findall(r'\d+', raw_text)]
+    
+    return numbers_list
 
 
-attempt1 = MatrixCoordinator(None,boolean_matrix, main_number_dict)
-final_matrix = attempt1.main_coordinator()
-print(final_matrix)
+
+
+# Usage
+if __name__ == "__main__":
+
+    numbers_v2 = extract_clean_numbers("test_photo_v7.jpg")
+    # #make slight adjustments
+    main_number_dict_v2 = create_number_dict(numbers_v2)
+
+    for key, value in main_number_dict.items():
+        print(f"{key}: {sorted(value)}")
+
+    print("\n")
+    for key, value in main_number_dict_v2.items():
+        print(f"{key}: {sorted(value)}")
+    # print(f"main_number_dict: {main_number_dict}")
+    # print(f"main_number_dict_v2: {main_number_dict_v2}")
+    print(len(numbers))
+    print(len(numbers_v2))
+
+
+    # image = preprocess_and_warp("test_photo_v3.jpg")
+    # cv2.imshow("image", image)
+    # cv2.waitKey(0)
+    # boolean_matrix = create_matrix(image)
+
+
+    # attempt1 = MatrixCoordinator(None,boolean_matrix, main_number_dict)
+    # final_matrix = attempt1.main_coordinator()
+    # print(final_matrix)
 
 
 
