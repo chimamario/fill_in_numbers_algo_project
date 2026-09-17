@@ -49,6 +49,8 @@ def show_matrix_v2(boolean_matrix, final_matrix):
 
     boolean_matrix = np.array(boolean_matrix, dtype=float)
 
+    # print(boolean_matrix)
+
     plt.imshow(boolean_matrix, cmap='grey', interpolation='nearest')
 
     # Add values to cells
@@ -97,19 +99,17 @@ if __name__ == "__main__":
     boolean_matrix, main_number_dict = extract_matrix_and_nums("test_photo_v3.jpg", ['79552', '93775'], ['795521', '937751'], True) 
     print(boolean_matrix)
 
+    #initial matrix without inputs
     show_matrix(boolean_matrix)
-    
-    
-
-
-
-    
-
-    # main_number_dict = create_number_dict(numbers)
-    attempt1 = MatrixCoordinator(None,boolean_matrix, main_number_dict)
-    final_matrix = attempt1.main_coordinator()
-    print(final_matrix)
-    show_matrix_v2(final_matrix, final_matrix)
+    correct_matrix = input("is matrix correct? [y or n]: ")
+    correct_matrix = correct_matrix.capitalize()
+    if correct_matrix == 'Y':
+        # main_number_dict = create_number_dict(numbers)
+        attempt1 = MatrixCoordinator(None,boolean_matrix.copy(), main_number_dict)
+        final_matrix = attempt1.main_coordinator()
+        show_matrix_v2(boolean_matrix, final_matrix)
+    else:
+        print("Boolean_matrix is incorrect. Readjust photo.")
 
 
 
