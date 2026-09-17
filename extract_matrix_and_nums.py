@@ -30,6 +30,14 @@ def preprocess_and_warp(image_path):
     img = cv2.imread(image_path)
     if img is None:
         raise FileNotFoundError(f"Could not load image from {image_path}")
+    
+    #crop photo for better contours
+    height, width = img.shape[:2]
+    img = img[:int(height * 2/3), :int(width * 8/10)]
+
+    # cv2.imshow("Cropped", cropped)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
         
     orig = img.copy()
     
@@ -39,24 +47,92 @@ def preprocess_and_warp(image_path):
     
     
     edged = cv2.Canny(blurred, 50, 150)
+
+    
     
     
     contours, _ = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # contours, _ = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
+    cont_area = [(c, cv2.contourArea(c, False)) for c in contours]
+    cont_area.sort(key=lambda x: x[1], reverse=True)
+    num_to_filter = max(1, int(len(contours) * 0.10))
+    filtered_contours = [c for c, p in cont_area[num_to_filter:]]
     
     contours = sorted(contours, key=cv2.contourArea, reverse=True)
+   
+
+    # Draw all contours
+    cv2.drawContours(
+        img,           # image to draw on
+        contours,      # contour list
+        -1,            # -1 means draw all contours
+        (0, 0, 255),   # Red in BGR
+        7              # line thickness
+    )
+
+    # Display image
+    cv2.imshow("Contours", img)
+
+    # Wait until key is pressed
+    cv2.waitKey(0)
+
+    # Close window
+    cv2.destroyAllWindows()
+
+
     
     grid_contour = None
     
     
-    for c in contours:
+    c_dict = {}
+   
+    for i, c in enumerate(contours):
         perimeter = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.02 * perimeter, True)
+        # if len(approx) == 4:
+        if (cv2.contourArea(c) > 100) and (len(approx) == 4): #note that width and height from cv2.boundingRect(c) should be very similar
+            #we could even filter this out better by grouping the area values that way we know its one of the cells
+
+            x,y, w,h  = cv2.boundingRect(c)
+
+            center_x = x + w / 2
+            center_y = y + h / 2
+
+            c_dict.append({
+                "x": x,
+                "y": y,
+                "w": w,
+                "h": h,
+                "cx": center_x,
+                "cy": center_y
+            })
+
+            # c_dict[i] = c
+            # #printing out contour options for user to select
+            # print(f"Contour {i}")
+            # print(f"Number of points: {len(c)}")
+            # print(f"Area: {cv2.contourArea(c)}")
+            # print(f"Bounding box: {cv2.boundingRect(c)}")
+            # print()
+
+    min_x = min(cell["x"] for cell in c_dict)
+    min_y = min(cell["y"] for cell in c_dict)
+
+    max_x = max(cell["x"] + cell["w"] for cell in c_dict)
+    max_y = max(cell["y"] + cell["h"] for cell in c_dict)
+
+    print(min_x, min_y)
+    c_input = input("Select contour #: ")
+    print(f"c_input: {int(c_input)}")
+    selected_c = c_dict[int(c_input)]
+    perimeter = cv2.arcLength(selected_c, True)
+    approx = cv2.approxPolyDP(selected_c, 0.02 * perimeter, True)
+    grid_contour = approx
         
-        
-        if len(approx) == 4:
-            grid_contour = approx
-            break
+        # if len(approx) == 4:
+        #     grid_contour = approx
+        #     break
             
     if grid_contour is None:
         raise ValueError("Could not detect a 13x13 grid boundary in the image.")
@@ -88,6 +164,47 @@ def preprocess_and_warp(image_path):
     _, warped_binary = cv2.threshold(warped_gray, 127, 255, cv2.THRESH_BINARY)
     
     return warped_binary
+
+def preprocess_and_warp_v2(image_path):
+    img = cv2.imread(image_path)
+    if img is None:
+        raise FileNotFoundError(f"Could not load image from {image_path}")
+        
+    orig = img.copy()
+    
+    
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Threshold the image
+    _, thresh = cv2.threshold(
+        gray,
+        200,
+        255,
+        cv2.THRESH_BINARY_INV
+    )
+
+    # Connect nearby regions
+    kernel = cv2.getStructuringElement(
+        cv2.MORPH_RECT,
+        (15, 15)
+    )
+
+    closed = cv2.morphologyEx(
+        thresh,
+        cv2.MORPH_CLOSE,
+        kernel
+    )
+
+    # Find external contours
+    contours, _ = cv2.findContours(
+        closed,
+        cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE
+    )
+    cv2.imshow("Closed", closed)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    return None
 
 def create_matrix(image):
     GRID_SIZE = 13
@@ -137,11 +254,13 @@ def extract_clean_numbers(image_path):
     
     return numbers_list
 
-def extract_matrix_and_nums(image_path, remove_nums = None, add_nums = None):
+def extract_matrix_and_nums(image_path, remove_nums = None, add_nums = None, confirmed = False):
     image = preprocess_and_warp(image_path)
+    # cv2.imshow("test", image)
+    # cv2.waitKey(0)
     boolean_matrix = create_matrix(image)
 
-    numbers= extract_clean_numbers("test_photo_v7.jpg")
+    numbers= extract_clean_numbers(image_path)
     
     
 
@@ -155,7 +274,13 @@ def extract_matrix_and_nums(image_path, remove_nums = None, add_nums = None):
     for key, value in main_number_dict.items():
         print(f"{key}: {sorted(value)}")
     print("\n")
-    input("Please Check if Numbers match, Press anything to continue: ")
+    if not confirmed:
+        input("Please Check if Numbers match, Press anything to continue: ")
 
     
     return boolean_matrix, main_number_dict
+
+
+if __name__ == '__main__':
+    preprocess_and_warp("Testing Folder/Puzzle 12 v2.jpg") 
+    # preprocess_and_warp("test_photo_v3.jpg")
