@@ -34,6 +34,7 @@ def preprocess_and_warp(image_path):
     #crop photo for better contours
     height, width = img.shape[:2]
     img = img[:int(height * 2/3), :int(width * 8/10)]
+    circle_img = img.copy()
 
     # cv2.imshow("Cropped", cropped)
     # cv2.waitKey(0)
@@ -85,14 +86,16 @@ def preprocess_and_warp(image_path):
     grid_contour = None
     
     
-    c_dict = {}
+    c_dict = []
    
     for i, c in enumerate(contours):
         perimeter = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.02 * perimeter, True)
         # if len(approx) == 4:
-        if (cv2.contourArea(c) > 100) and (len(approx) == 4): #note that width and height from cv2.boundingRect(c) should be very similar
+        if (cv2.contourArea(c) > 25000) and (len(approx) == 4): #note that width and height from cv2.boundingRect(c) should be very similar
             #we could even filter this out better by grouping the area values that way we know its one of the cells
+            
+            #figure out more robust way to filter
 
             x,y, w,h  = cv2.boundingRect(c)
 
@@ -108,13 +111,13 @@ def preprocess_and_warp(image_path):
                 "cy": center_y
             })
 
-            # c_dict[i] = c
-            # #printing out contour options for user to select
-            # print(f"Contour {i}")
-            # print(f"Number of points: {len(c)}")
-            # print(f"Area: {cv2.contourArea(c)}")
-            # print(f"Bounding box: {cv2.boundingRect(c)}")
-            # print()
+            
+            #printing out contour options for user to select
+            print(f"Contour {i}")
+            print(f"Number of points: {len(c)}")
+            print(f"Area: {cv2.contourArea(c)}")
+            print(f"Bounding box: {cv2.boundingRect(c)}")
+            print()
 
     min_x = min(cell["x"] for cell in c_dict)
     min_y = min(cell["y"] for cell in c_dict)
@@ -123,22 +126,23 @@ def preprocess_and_warp(image_path):
     max_y = max(cell["y"] + cell["h"] for cell in c_dict)
 
     print(min_x, min_y)
-    c_input = input("Select contour #: ")
-    print(f"c_input: {int(c_input)}")
-    selected_c = c_dict[int(c_input)]
-    perimeter = cv2.arcLength(selected_c, True)
-    approx = cv2.approxPolyDP(selected_c, 0.02 * perimeter, True)
-    grid_contour = approx
-        
-        # if len(approx) == 4:
-        #     grid_contour = approx
-        #     break
-            
-    if grid_contour is None:
-        raise ValueError("Could not detect a 13x13 grid boundary in the image.")
-        
-    
-    pts = grid_contour.reshape(4, 2)
+    print(max_x, max_y)
+
+    cv2.circle(circle_img, (min_x, min_y), 10, (0, 0, 255), -1)
+    cv2.circle(circle_img, (min_x, max_y), 10, (0, 0, 255), -1)
+    cv2.circle(circle_img, (max_x, min_y), 10, (0, 0, 255), -1)
+    cv2.circle(circle_img, (max_x, max_y), 10, (0, 0, 255), -1)
+
+    cv2.imshow("Image", circle_img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    points = [
+        (min_x, min_y), (min_x, max_y), (max_x, min_y), (max_x, max_y)
+    ]
+    contour = np.array(points, dtype=np.int32).reshape((4,2))
+
+    pts = contour 
     rect = np.zeros((4, 2), dtype="float32")
     
     s = pts.sum(axis=1)
@@ -146,6 +150,7 @@ def preprocess_and_warp(image_path):
     rect[2] = pts[np.argmax(s)] # bottom-right has largest sum
     
     diff = np.diff(pts, axis=1)
+
     rect[1] = pts[np.argmin(diff)] # top-right has smallest difference
     rect[3] = pts[np.argmax(diff)] # bottom-left has largest difference
 
@@ -165,46 +170,6 @@ def preprocess_and_warp(image_path):
     
     return warped_binary
 
-def preprocess_and_warp_v2(image_path):
-    img = cv2.imread(image_path)
-    if img is None:
-        raise FileNotFoundError(f"Could not load image from {image_path}")
-        
-    orig = img.copy()
-    
-    
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    # Threshold the image
-    _, thresh = cv2.threshold(
-        gray,
-        200,
-        255,
-        cv2.THRESH_BINARY_INV
-    )
-
-    # Connect nearby regions
-    kernel = cv2.getStructuringElement(
-        cv2.MORPH_RECT,
-        (15, 15)
-    )
-
-    closed = cv2.morphologyEx(
-        thresh,
-        cv2.MORPH_CLOSE,
-        kernel
-    )
-
-    # Find external contours
-    contours, _ = cv2.findContours(
-        closed,
-        cv2.RETR_EXTERNAL,
-        cv2.CHAIN_APPROX_SIMPLE
-    )
-    cv2.imshow("Closed", closed)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    return None
 
 def create_matrix(image):
     GRID_SIZE = 13
