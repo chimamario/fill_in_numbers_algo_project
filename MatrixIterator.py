@@ -439,12 +439,16 @@ class MatrixIterator:
                                 first_x = x #NOTE this has to change if the guess is a row instead
                                 first_y = y
 
-                            if self.current_matrix[x][y] == None:
-                                p_set_r_or_c.append((x,y))
+                            
+                            p_set_r_or_c.append((x,y))
                             # if self.current_matrix[x][y] == None:
                             #     p_set_r_or_c.append((x,y))
 
-                    
+                    #you have to order r_sets with respect to p_set_r_or_c
+                    if self.which_axis == 'col':
+                        r_sets = sorted(r_sets, key=lambda inner_list: inner_list[0][0])
+                        
+                    debug=3
                     for i, r_set in enumerate(r_sets): 
                         #use the row column instead
                         r_array = [self.current_matrix[x][y] if self.current_matrix[x][y] else None for (x,y) in r_set] 
@@ -520,13 +524,15 @@ class MatrixIterator:
 
                                 #find index of r_set based on r_set position
                                 r_index = r_set_order.index((x,y))
-        
+                                debug = 1
                                 #store value in r_set
                                 another_array[r_index] = final_number[p_index]
                                 # print(f"updated array: {another_array}") #NOTE debug print value
-
+                                
+                                another_array_length = len(another_array)
+                                p_list = self.main_number_dict[another_array_length]
                                 another_num_list = [ #selects all numbers that contain any digits from another_array
-                                num for num in n_list 
+                                num for num in p_list 
                                 if all(another_array[i] is None or num[i] == another_array[i] for i in range(len(another_array)))
                                 ]
                                 
@@ -538,8 +544,8 @@ class MatrixIterator:
                                         self.current_matrix[x][y] = another_num_list[0][i]
                                     
                                     #removing number discovered in r_set case
-                                    n_list.remove(another_num_list[0])
-                                    self.main_number_dict[p_length] = n_list  
+                                    p_list.remove(another_num_list[0])
+                                    self.main_number_dict[another_array_length] = p_list  
                                     intermiediate_all_coords.remove(r_set_order)
 
                 # elif len(pot_vic_nums) == 1: #this is checked after (len > 1) check to make the next iteration easier
@@ -570,7 +576,7 @@ class MatrixIterator:
         # #added this here so it can be conditional
         if initial_check:
 
-            print(f"{self.first_guess} attempt for set: {self.current_set}")
+            # print(f"{self.first_guess} attempt for set: {self.current_set}")
 
             for i, (x,y) in enumerate(self.correct_order_first_guess):
                 self.current_matrix[x][y] = self.first_guess[i]
@@ -594,14 +600,13 @@ class MatrixIterator:
                 while remaining_coords != old_remaining_coords:
                     old_remaining_coords = remaining_coords
                     remaining_coords = self.check_vicinity_sets_v2()
-                if self.first_guess == '6073':
-                    print("vicinity_set iteration worked") #NOTE debug line
 
                 self.matrix_check()
         
             else:
-                print(f"{self.first_guess} failed the iso check (there were sections that had no solutions so it is not added to father dictionary)")
+                # print(f"{self.first_guess} failed the iso check (there were sections that had no solutions so it is not added to father dictionary)")
                 self.ranking = sum(1 for row in self.current_matrix for val in row if val is not None)
+                self.remove_node = True
                 
                 #just in case the iso case fails
                 # if self.ranking == 123:
@@ -615,7 +620,8 @@ class MatrixIterator:
         
         #ranking should be more so about the number of connections made but for now lets test just using the number of non_None values
         self.ranking = sum(1 for row in self.current_matrix for val in row if val is not None)
-        print(f"Loop ends here. '{self.first_guess}' has a score of {self.ranking}")
+        if self.remove_node == False:
+            print(f"Loop ends here. '{self.first_guess}' has a remove_node status False with has a score of {self.ranking}")
         
 
     def show_matrix(self):

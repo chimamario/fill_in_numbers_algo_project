@@ -63,23 +63,24 @@ def preprocess_and_warp(image_path):
     contours = sorted(contours, key=cv2.contourArea, reverse=True)
    
 
-    # Draw all contours
-    cv2.drawContours(
-        img,           # image to draw on
-        contours,      # contour list
-        -1,            # -1 means draw all contours
-        (0, 0, 255),   # Red in BGR
-        7              # line thickness
-    )
+    #Important to check contour 
+    # # Draw all contours
+    # cv2.drawContours(
+    #     img,           # image to draw on
+    #     contours,      # contour list
+    #     -1,            # -1 means draw all contours
+    #     (0, 0, 255),   # Red in BGR
+    #     7              # line thickness
+    # )
 
-    # Display image
-    cv2.imshow("Contours", img)
+    # # Display image
+    # cv2.imshow("Contours", img)
 
-    # Wait until key is pressed
-    cv2.waitKey(0)
+    # # Wait until key is pressed
+    # cv2.waitKey(0)
 
-    # Close window
-    cv2.destroyAllWindows()
+    # # Close window
+    # cv2.destroyAllWindows()
 
 
     
@@ -113,11 +114,11 @@ def preprocess_and_warp(image_path):
 
             
             #printing out contour options for user to select
-            print(f"Contour {i}")
-            print(f"Number of points: {len(c)}")
-            print(f"Area: {cv2.contourArea(c)}")
-            print(f"Bounding box: {cv2.boundingRect(c)}")
-            print()
+            # print(f"Contour {i}")
+            # print(f"Number of points: {len(c)}")
+            # print(f"Area: {cv2.contourArea(c)}")
+            # print(f"Bounding box: {cv2.boundingRect(c)}")
+            # print()
 
     min_x = min(cell["x"] for cell in c_dict)
     min_y = min(cell["y"] for cell in c_dict)
@@ -133,9 +134,10 @@ def preprocess_and_warp(image_path):
     cv2.circle(circle_img, (max_x, min_y), 10, (0, 0, 255), -1)
     cv2.circle(circle_img, (max_x, max_y), 10, (0, 0, 255), -1)
 
-    cv2.imshow("Image", circle_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    #important to check if correct coordinates were selected
+    # cv2.imshow("Image", circle_img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
     points = [
         (min_x, min_y), (min_x, max_y), (max_x, min_y), (max_x, max_y)

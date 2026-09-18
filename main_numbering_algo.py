@@ -96,13 +96,19 @@ def show_matrix_v2(boolean_matrix, final_matrix):
 
 
 if __name__ == "__main__":
-    boolean_matrix, main_number_dict = extract_matrix_and_nums("test_photo_v3.jpg", ['79552', '93775'], ['795521', '937751'], True) 
-    print(boolean_matrix)
+    #Puzzle 11
+    # boolean_matrix, main_number_dict = extract_matrix_and_nums("test_photo_v3.jpg", add_nums=['533', '133', '3273'], remove_nums=['0420'], confirmed = False) 
+
+    #Puzzle 12
+    boolean_matrix, main_number_dict = extract_matrix_and_nums("Testing Folder/Puzzle 12 v2.jpg", remove_nums=['141', '229'], confirmed = False) 
+   
 
     #initial matrix without inputs
     show_matrix(boolean_matrix)
-    correct_matrix = input("is matrix correct? [y or n]: ")
-    correct_matrix = correct_matrix.capitalize()
+    # correct_matrix = input("is matrix correct? [y or n]: ")
+    # correct_matrix = correct_matrix.capitalize()
+
+    correct_matrix = 'Y'
     if correct_matrix == 'Y':
         # main_number_dict = create_number_dict(numbers)
         attempt1 = MatrixCoordinator(None,boolean_matrix.copy(), main_number_dict)

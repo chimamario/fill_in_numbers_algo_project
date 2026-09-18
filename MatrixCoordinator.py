@@ -47,6 +47,7 @@ class MatrixCoordinator:
         self.node_storage = {}
         self.max_score = np.sum(proper_matrix)
         self.proper_matrix = proper_matrix
+        self.final_matrix = None
         
 
     
@@ -72,6 +73,8 @@ class MatrixCoordinator:
             
             if class_object.remove_node is False:
                 item_and_ranking[0] = class_object.ranking
+
+                print(f"{name} has the following remove_node status: {class_object.remove_node}")
                 # self.potential_kings[name] = class_object #ranking should be stored in object so we don't have to keep track of it here
                 self.potential_kings[name] = [class_object.ranking, class_object]
 
@@ -92,6 +95,7 @@ class MatrixCoordinator:
                 
             main_number_dict, current_matrix, all_coords= main_object.return_matrix_variables()
             if len(all_coords) == 0: #matrix is completely filled, end function
+                self.final_matrix = main_object.show_matrix()
                 return True
             
                 
@@ -102,10 +106,11 @@ class MatrixCoordinator:
             for name, item_and_ranking in tracker_dict.items(): 
                 class_object = item_and_ranking[1]
                 
-                print(f"main guess and set:  {class_object.first_guess} and {class_object.current_set}")
+                
                 class_object.main_function()
                 
                 if class_object.remove_node is False:
+                    # print(f"main guess and set:  {class_object.first_guess} and {class_object.current_set}")
                     item_and_ranking[0] = class_object.ranking
                     # self.potential_kings[name] = class_object #ranking should be stored in object so we don't have to keep track of it here
                     main_object.add_children(name, class_object)
@@ -156,6 +161,8 @@ class MatrixCoordinator:
                 continue
 
         print('matrix is complete I hope')
+        print(self.final_matrix)
+        return self.final_matrix
     
 
 
