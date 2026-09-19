@@ -171,6 +171,7 @@ class MatrixIterator:
         
     def matrix_check(self):
         temp_all_coords = self.all_coords.copy()
+        acc_matrix = True
         for coord_list in temp_all_coords:
             c_list = sort_coord_list(coord_list, self.which_axis)
             n_list = self.main_number_dict[len(coord_list)]
@@ -185,7 +186,12 @@ class MatrixIterator:
                     self.all_coords.remove(coord_list)
                     n_list.remove(result)
                     self.main_number_dict[len(coord_list)] = n_list
-
+                else:
+                    print(f"{result} is not in matrix")
+                    # self.remove_node = True
+                    acc_matrix = False
+                    
+        return acc_matrix
     
     def check_iso_guess_cases(self, iterator_check = False):
         iso_list = [] #add all guesses that have one 1 input into list
@@ -572,9 +578,10 @@ class MatrixIterator:
     def main_function(self):
 
         initial_check = self.quick_current_set_check()
+        acc_mat_check = self.matrix_check()
 
         # #added this here so it can be conditional
-        if initial_check:
+        if initial_check and acc_mat_check:
 
             # print(f"{self.first_guess} attempt for set: {self.current_set}")
 
@@ -601,28 +608,24 @@ class MatrixIterator:
                     old_remaining_coords = remaining_coords
                     remaining_coords = self.check_vicinity_sets_v2()
 
-                self.matrix_check()
+                # self.matrix_check() #adjusts self.remove node to true if it finds incorrect number
         
             else:
                 # print(f"{self.first_guess} failed the iso check (there were sections that had no solutions so it is not added to father dictionary)")
                 self.ranking = sum(1 for row in self.current_matrix for val in row if val is not None)
                 self.remove_node = True
                 
-                #just in case the iso case fails
-                # if self.ranking == 123:
-                #     self.remove_node = False
-                # else:
-                #     self.remove_node = True
         else:
             print(f'{self.first_guess} does not match with current matrix for cells {self.current_set}')
             self.remove_node = True
+
         
-        
+        debug = 4
         #ranking should be more so about the number of connections made but for now lets test just using the number of non_None values
         self.ranking = sum(1 for row in self.current_matrix for val in row if val is not None)
         if self.remove_node == False:
-            print(f"Loop ends here. '{self.first_guess}' has a remove_node status False with has a score of {self.ranking}")
-        
+            print(f"Loop ends here for {self.current_set}. '{self.first_guess}' with False remove_node status. score of {self.ranking} ")
+            debug = 5
 
     def show_matrix(self):
         return self.current_matrix 
@@ -636,7 +639,7 @@ class MatrixIterator:
         if temp_current_set in self.all_coords:
             self.all_coords.remove(temp_current_set)
 
-
+        debug=6
         return copy.deepcopy(self.main_number_dict), copy.deepcopy(self.current_matrix), copy.deepcopy(self.all_coords)
     
     def get_ranking(self):
