@@ -119,7 +119,10 @@ class MatrixCoordinator:
                     current_score = self.get_max_score()
                     self.node_storage[name] = [class_object.ranking, class_object]
                     # self.iterate_and_create_nodes(class_object, current_score)
-                    
+
+                    #
+                    print("\n")
+                    print(f"New iteration occuring for {name}'s object")
                     if self.iterate_and_create_nodes(class_object, current_score):
                         return True
                 else:
@@ -162,7 +165,14 @@ class MatrixCoordinator:
 
         print('matrix is complete I hope')
         print(self.final_matrix)
-        return self.final_matrix
+        if self.final_matrix:
+            return self.final_matrix
+        else:
+
+            last_node = next(reversed(self.node_storage.values()))
+            last_node = max(self.node_storage.values(), key=lambda x: x[0])
+            last_object = last_node[1]
+            return last_object.show_matrix()
     
 
 
