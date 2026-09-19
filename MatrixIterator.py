@@ -260,9 +260,26 @@ class MatrixIterator:
                 
                 # print(f"set {c_set} has the following potential numbers: {pot_num} and here is quick_set_with_num: {quick_set_with_num}")
                 
-
+                #checking for any c_set and current matrix number conflicts
+                confirm_cells_match = True
                 for i, (x,y) in enumerate(c_set): #add to matrix
-                    self.current_matrix[x][y] = pot_num[i]
+                    if self.current_matrix[x][y] != None:
+                        matrix_value = self.current_matrix[x][y]
+                        if matrix_value != pot_num[i]:
+                            print('this iso case does not count')
+                            confirm_cells_match = False
+
+                #add numbers to matrix if it there are no conflicts between c_set guess and matrix
+                if confirm_cells_match:
+                    for i, (x,y) in enumerate(c_set):
+                        self.current_matrix[x][y] = pot_num[i]
+                else:
+                    print('kill iso function run since numbers do not match')
+                    self.remove_node = True 
+                    return False, [], False
+
+                        
+
                 
             
 
@@ -601,12 +618,13 @@ class MatrixIterator:
                     iso_check, iso_list, iterator_check = self.check_iso_guess_cases(iterator_check) #make a while loop until iso list is empty
                     
 
-            
-                remaining_coords = self.check_vicinity_sets_v2()
-                old_remaining_coords = []
-                while remaining_coords != old_remaining_coords:
-                    old_remaining_coords = remaining_coords
+                #only run the following if iterator_check is True
+                if iterator_check:
                     remaining_coords = self.check_vicinity_sets_v2()
+                    old_remaining_coords = []
+                    while remaining_coords != old_remaining_coords:
+                        old_remaining_coords = remaining_coords
+                        remaining_coords = self.check_vicinity_sets_v2()
 
                 # self.matrix_check() #adjusts self.remove node to true if it finds incorrect number
         
