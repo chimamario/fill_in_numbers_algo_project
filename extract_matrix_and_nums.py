@@ -25,7 +25,7 @@ def preProcess(img):
 
 
 
-def preprocess_and_warp(image_path):
+def preprocess_and_warp(image_path, matrix_confirm):
     
     img = cv2.imread(image_path)
     if img is None:
@@ -64,27 +64,26 @@ def preprocess_and_warp(image_path):
    
 
     #Important to check contour 
-    # # Draw all contours
-    # cv2.drawContours(
-    #     img,           # image to draw on
-    #     contours,      # contour list
-    #     -1,            # -1 means draw all contours
-    #     (0, 0, 255),   # Red in BGR
-    #     7              # line thickness
-    # )
+    # Draw all contours
+    if not matrix_confirm:
+        cv2.drawContours(
+            img,           # image to draw on
+            contours,      # contour list
+            -1,            # -1 means draw all contours
+            (0, 0, 255),   # Red in BGR
+            7              # line thickness
+        )
 
-    # # Display image
-    # cv2.imshow("Contours", img)
+        # Display image
+        cv2.imshow("Contours", img)
 
-    # # Wait until key is pressed
-    # cv2.waitKey(0)
+        # Wait until key is pressed
+        cv2.waitKey(0)
 
-    # # Close window
-    # cv2.destroyAllWindows()
+        # Close window
+        cv2.destroyAllWindows()
 
 
-    
-    grid_contour = None
     
     
     c_dict = []
@@ -92,11 +91,9 @@ def preprocess_and_warp(image_path):
     for i, c in enumerate(contours):
         perimeter = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.02 * perimeter, True)
-        # if len(approx) == 4:
-        if (cv2.contourArea(c) > 25000) and (len(approx) == 4): #note that width and height from cv2.boundingRect(c) should be very similar
-            #we could even filter this out better by grouping the area values that way we know its one of the cells
-            
-            #figure out more robust way to filter
+        
+        #if extremely large grid is detected
+        if (cv2.contourArea(c) > 50000) and (len(approx) == 4):
 
             x,y, w,h  = cv2.boundingRect(c)
 
@@ -112,6 +109,30 @@ def preprocess_and_warp(image_path):
                 "cy": center_y
             })
 
+            break
+
+        c_dict_length = len(c_dict) #check if any contour was detected
+        if c_dict_length == 0:
+
+            if (cv2.contourArea(c) > 25000) and (cv2.contourArea(c) < 40000) and (len(approx) == 4): #note that width and height from cv2.boundingRect(c) should be very similar
+                #we could even filter this out better by grouping the area values that way we know its one of the cells
+                
+                #figure out more robust way to filter
+
+                x,y, w,h  = cv2.boundingRect(c)
+
+                center_x = x + w / 2
+                center_y = y + h / 2
+
+                c_dict.append({
+                    "x": x,
+                    "y": y,
+                    "w": w,
+                    "h": h,
+                    "cx": center_x,
+                    "cy": center_y
+                })
+
             
             #printing out contour options for user to select
             # print(f"Contour {i}")
@@ -120,6 +141,7 @@ def preprocess_and_warp(image_path):
             # print(f"Bounding box: {cv2.boundingRect(c)}")
             # print()
 
+    print(f"c_dict: {c_dict}")
     min_x = min(cell["x"] for cell in c_dict)
     min_y = min(cell["y"] for cell in c_dict)
 
@@ -221,10 +243,12 @@ def extract_clean_numbers(image_path):
     
     return numbers_list
 
-def extract_matrix_and_nums(image_path, remove_nums = None, add_nums = None, confirmed = False):
-    image = preprocess_and_warp(image_path)
-    # cv2.imshow("test", image)
-    # cv2.waitKey(0)
+def extract_matrix_and_nums(image_path, remove_nums = None, add_nums = None, confirmed = False, matrix_confirm = False):
+    image = preprocess_and_warp(image_path, matrix_confirm)
+    if not matrix_confirm:
+        cv2.imshow("test", image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
     boolean_matrix = create_matrix(image)
 
     numbers= extract_clean_numbers(image_path)
