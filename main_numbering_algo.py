@@ -114,12 +114,13 @@ def show_matrix_v2(boolean_matrix, final_matrix,main_number_dict, current_set):
 
 if __name__ == "__main__":
     #Puzzle 11
-    # boolean_matrix, main_number_dict = extract_matrix_and_nums("test_photo_v3.jpg", add_nums=['533', '133', '3273'], remove_nums=['0420'], confirmed = True) 
+    # boolean_matrix, main_number_dict = extract_matrix_and_nums("test_photo_v3.jpg", add_nums=['533', '133', '3273'], remove_nums=['0420'], confirmed = True, matrix_confirm=True) 
 
     #Puzzle 12
-    boolean_matrix, main_number_dict = extract_matrix_and_nums("Testing Folder/Puzzle 12 v2.jpg", remove_nums=['141', '229'], confirmed = True) 
+    # boolean_matrix, main_number_dict = extract_matrix_and_nums("Testing Folder/Puzzle 12 v2.jpg", remove_nums=['141', '229'], confirmed = True) 
    
-
+    #Puzzle 14
+    boolean_matrix, main_number_dict = extract_matrix_and_nums("Testing Folder/Puzzle 14.jpg", add_nums = ['897', '7741', '60380'], remove_nums = ['774'], confirmed = True, matrix_confirm=True) 
     #initial matrix without inputs
     # show_matrix(boolean_matrix)
     # correct_matrix = input("is matrix correct? [y or n]: ")
