@@ -48,6 +48,8 @@ class MatrixCoordinator:
         self.max_score = np.sum(proper_matrix)
         self.proper_matrix = proper_matrix
         self.final_matrix = None
+
+
         
 
     
@@ -87,7 +89,7 @@ class MatrixCoordinator:
             print("no solution with first guess, head over to second")
             print('I am thinking we make the whole function a while loop that stops once the len of this list is > 1')
 
-    def iterate_and_create_nodes(self, main_object, prev_score): #figure out how to make this iterative without manually creating next step
+    def iterate_and_create_nodes(self, main_object, prev_score, f_name = None): #figure out how to make this iterative without manually creating next step
        
         while prev_score < self.max_score: #we've reached infinite loop
             # if current_score == self.max_score:
@@ -103,13 +105,31 @@ class MatrixCoordinator:
             number_list, current_set, common_sets, main_number_dict, current_matrix, all_coords = obtain_all_sets_v2(self.proper_matrix, self.current_set_num, main_number_dict, current_matrix, all_coords, first_guess = False) 
             tracker_dict = create_object_copy(number_list, current_set, common_sets, main_number_dict, current_matrix, all_coords, main_object = main_object)
 
+            temp_tracker = tracker_dict.copy()
+
+            # if f_name == "2_7652":
+            #     print(f"current_set: {current_set}")
+            #     print(f"number list: {number_list}")
+
+            print(f"tracker_dict: {tracker_dict.keys()}")
+
             for name, item_and_ranking in tracker_dict.items(): 
                 class_object = item_and_ranking[1]
                 
                 
                 class_object.main_function()
+
+                # if f_name == "2_7652":
+                #     print(f"for {name} this was the set that killed the node")
+                #     print(f"current_set: {class_object.current_set}")
+                    # print(f"number list: {number_list}")
                 
+
                 if class_object.remove_node is False:
+
+                    print(f"\nfor recursion_loop: {f_name}, {name}'s remove node returned True")
+
+                    any_node_explored = True
                     # print(f"main guess and set:  {class_object.first_guess} and {class_object.current_set}")
                     item_and_ranking[0] = class_object.ranking
                     # self.potential_kings[name] = class_object #ranking should be stored in object so we don't have to keep track of it here
@@ -121,13 +141,40 @@ class MatrixCoordinator:
                     # self.iterate_and_create_nodes(class_object, current_score)
 
                     #
-                    print("\n")
-                    print(f"New iteration occuring for {name}'s object")
-                    if self.iterate_and_create_nodes(class_object, current_score):
+                    print("\n\n")
+                    print(f"New iteration occuring for {name}'s object which current has a ranking of {class_object.ranking}")
+
+                    # print(f"Entering recursion for {name}")
+
+                    # result = self.iterate_and_create_nodes(
+                    #     class_object,
+                    #     current_score,
+                    #     name
+                    # )
+
+                    print(f">>> ENTERING RECURSION FROM {name}")
+
+                    result = self.iterate_and_create_nodes(
+                        class_object,
+                        current_score,
+                        name
+                    )
+
+                    print(f"<<< RETURNED FROM RECURSION TO {name}, result={result}")
+
+    
+
+                    if result:
                         return True
-                else:
-                    continue
+
+                    print(f"Continuing tracker_dict loop after {name}")
+
+                    # if self.iterate_and_create_nodes(class_object, current_score, name):
+                    #     return True
+                
         
+            print(f"NO SOLUTION FOUND FOR {f_name}")
+            print(f"EXHAUSTED tracker_dict: {tracker_dict.keys()}")
             return False
            
             
@@ -148,6 +195,8 @@ class MatrixCoordinator:
         for king, [ranking, main_object] in temp_potential_kings.items():
             self.node_storage = {}
             self.node_storage[king] = [main_object.ranking, main_object]
+
+
             
             print(temp_potential_kings)
             
@@ -166,13 +215,13 @@ class MatrixCoordinator:
         print('matrix is complete I hope')
         print(self.final_matrix)
         if self.final_matrix:
-            return self.final_matrix
+            return self.final_matrix, None, None
         else:
 
-            last_node = next(reversed(self.node_storage.values()))
+            # last_node = next(reversed(self.node_storage.values()))
             last_node = max(self.node_storage.values(), key=lambda x: x[0])
             last_object = last_node[1]
-            return last_object.show_matrix()
+            return last_object.show_matrix(), last_object.main_number_dict, last_object.current_set
     
 
 
