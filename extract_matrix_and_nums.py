@@ -87,13 +87,50 @@ def preprocess_and_warp(image_path, matrix_confirm):
     
     
     c_dict = []
+    print(f"contour length: {len(contours)}")
+    for i, c in enumerate(contours):
+    #printing out contour options for user to select
+        perimeter = cv2.arcLength(c, True)
+        approx = cv2.approxPolyDP(c, 0.02 * perimeter, True)
+        # if (cv2.contourArea(c) > 25000) and (cv2.contourArea(c) < 40000) and (len(approx) == 4):
+        if (cv2.contourArea(c) > 25000) and  (len(approx) == 4):
+        # if len(c_dict) == 0:
+            print(f"Contour {i}")
+            print(f"Number of points: {len(c)}")
+            print(f"Area: {cv2.contourArea(c)}")
+            print(f"Bounding box: {cv2.boundingRect(c)}")
+            print()
    
     for i, c in enumerate(contours):
         perimeter = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.02 * perimeter, True)
         
         #if extremely large grid is detected
-        if (cv2.contourArea(c) > 50000) and (len(approx) == 4):
+        if (cv2.contourArea(c) > 100_000) and (len(approx) == 4):
+
+            x,y, w,h  = cv2.boundingRect(c)
+
+            center_x = x + w / 2
+            center_y = y + h / 2
+
+            c_dict.append({
+                "x": x,
+                "y": y,
+                "w": w,
+                "h": h,
+                "cx": center_x,
+                "cy": center_y
+            })
+            print("large box detected")
+            print(f"contour area: {cv2.contourArea(c)}")
+            break
+       
+        
+        # print("small box detected")
+        if (cv2.contourArea(c) > 25000) and (cv2.contourArea(c) < 40000) and (len(approx) == 4): #note that width and height from cv2.boundingRect(c) should be very similar
+            #we could even filter this out better by grouping the area values that way we know its one of the cells
+            
+            #figure out more robust way to filter
 
             x,y, w,h  = cv2.boundingRect(c)
 
@@ -109,37 +146,13 @@ def preprocess_and_warp(image_path, matrix_confirm):
                 "cy": center_y
             })
 
-            break
-
-        c_dict_length = len(c_dict) #check if any contour was detected
-        if c_dict_length == 0:
-
-            if (cv2.contourArea(c) > 25000) and (cv2.contourArea(c) < 40000) and (len(approx) == 4): #note that width and height from cv2.boundingRect(c) should be very similar
-                #we could even filter this out better by grouping the area values that way we know its one of the cells
-                
-                #figure out more robust way to filter
-
-                x,y, w,h  = cv2.boundingRect(c)
-
-                center_x = x + w / 2
-                center_y = y + h / 2
-
-                c_dict.append({
-                    "x": x,
-                    "y": y,
-                    "w": w,
-                    "h": h,
-                    "cx": center_x,
-                    "cy": center_y
-                })
-
-            
-            #printing out contour options for user to select
-            # print(f"Contour {i}")
-            # print(f"Number of points: {len(c)}")
-            # print(f"Area: {cv2.contourArea(c)}")
-            # print(f"Bounding box: {cv2.boundingRect(c)}")
-            # print()
+        
+        #printing out contour options for user to select
+        # print(f"Contour {i}")
+        # print(f"Number of points: {len(c)}")
+        # print(f"Area: {cv2.contourArea(c)}")
+        # print(f"Bounding box: {cv2.boundingRect(c)}")
+        # print()
 
     print(f"c_dict: {c_dict}")
     min_x = min(cell["x"] for cell in c_dict)
@@ -157,9 +170,10 @@ def preprocess_and_warp(image_path, matrix_confirm):
     cv2.circle(circle_img, (max_x, max_y), 10, (0, 0, 255), -1)
 
     #important to check if correct coordinates were selected
-    # cv2.imshow("Image", circle_img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    if not matrix_confirm:
+        cv2.imshow("Image", circle_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
     points = [
         (min_x, min_y), (min_x, max_y), (max_x, min_y), (max_x, max_y)
